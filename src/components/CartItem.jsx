@@ -1,44 +1,148 @@
-import { createSlice } from "@reduxjs/toolkit";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { removeItem, updateQuantity } from "../redux/CartSlice";
 
-const initialState = {
-  items: []
-};
+function CartItem() {
+  const dispatch = useDispatch();
+  const cartItems = useSelector((state) => state.cart.items);
 
-const cartSlice = createSlice({
-  name: "cart",
-  initialState,
-  reducers: {
-    addItem: (state, action) => {
-      const existingItem = state.items.find(
-        (item) => item.id === action.payload.id
+  const handleIncrease = (item) => {
+    dispatch(
+      updateQuantity({
+        id: item.id,
+        quantity: item.quantity + 1
+      })
+    );
+  };
+
+  const handleDecrease = (item) => {
+    if (item.quantity > 1) {
+      dispatch(
+        updateQuantity({
+          id: item.id,
+          quantity: item.quantity - 1
+        })
       );
-
-      if (existingItem) {
-        existingItem.quantity += 1;
-      } else {
-        state.items.push({
-          ...action.payload,
-          quantity: 1
-        });
-      }
-    },
-
-    removeItem: (state, action) => {
-      state.items = state.items.filter(
-        (item) => item.id !== action.payload
-      );
-    },
-
-    updateQuantity: (state, action) => {
-      const { id, quantity } = action.payload;
-      const item = state.items.find((item) => item.id === id);
-
-      if (item) {
-        item.quantity = quantity;
-      }
     }
-  }
-});
+  };
 
-export const { addItem, removeItem, updateQuantity } = cartSlice.actions;
-export default cartSlice.reducer;
+  const handleDelete = (id) => {
+    dispatch(removeItem(id));
+  };
+
+  const calculateTotalAmount = () => {
+    return cartItems.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
+  };
+
+  const calculateTotalPlants = () => {
+    return cartItems.reduce((total, item) => total + item.quantity, 0);
+  };
+
+  return (
+    <div>
+      <nav
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          backgroundColor: "#2e7d32",
+          color: "white",
+          padding: "15px 30px"
+        }}
+      >
+        <div style={{ fontWeight: "bold", fontSize: "24px" }}>
+          Paradise Nursery
+        </div>
+
+        <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
+          <a href="#" style={{ color: "white", textDecoration: "none" }}>
+            Home
+          </a>
+          <a href="#" style={{ color: "white", textDecoration: "none" }}>
+            Plants
+          </a>
+          <a href="#" style={{ color: "white", textDecoration: "none" }}>
+            Cart ({calculateTotalPlants()})
+          </a>
+        </div>
+      </nav>
+
+      <div style={{ padding: "20px" }}>
+        <h1>Shopping Cart</h1>
+        <h2>Total Number of Plants: {calculateTotalPlants()}</h2>
+        <h2>Total Cart Amount: ${calculateTotalAmount()}</h2>
+
+        {cartItems.map((item) => (
+          <div
+            key={item.id}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "20px",
+              border: "1px solid #ccc",
+              borderRadius: "10px",
+              padding: "15px",
+              marginBottom: "20px"
+            }}
+          >
+            <img
+              src={item.image}
+              alt={item.name}
+              style={{
+                width: "120px",
+                height: "120px",
+                objectFit: "cover",
+                borderRadius: "8px"
+              }}
+            />
+
+            <div style={{ flex: 1 }}>
+              <h3>{item.name}</h3>
+              <p>Unit Price: ${item.price}</p>
+              <p>Quantity: {item.quantity}</p>
+              <p>Total Cost: ${item.price * item.quantity}</p>
+
+              <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+                <button onClick={() => handleIncrease(item)}>+</button>
+                <button onClick={() => handleDecrease(item)}>-</button>
+                <button onClick={() => handleDelete(item.id)}>Delete</button>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        <div style={{ marginTop: "30px", display: "flex", gap: "15px" }}>
+          <button
+            onClick={() => alert("Coming Soon")}
+            style={{
+              padding: "12px 20px",
+              backgroundColor: "green",
+              color: "white",
+              border: "none",
+              borderRadius: "5px"
+            }}
+          >
+            Checkout
+          </button>
+
+          <button
+            style={{
+              padding: "12px 20px",
+              backgroundColor: "#555",
+              color: "white",
+              border: "none",
+              borderRadius: "5px"
+            }}
+          >
+            Continue Shopping
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default CartItem;
