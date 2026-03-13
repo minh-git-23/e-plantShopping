@@ -2,7 +2,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { removeItem, updateQuantity } from "../redux/CartSlice";
 
-function CartItem() {
+function CartItem({ setShowCart }) {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
 
@@ -61,12 +61,19 @@ function CartItem() {
           <a href="#" style={{ color: "white", textDecoration: "none" }}>
             Home
           </a>
-          <a href="#" style={{ color: "white", textDecoration: "none" }}>
+          <button
+            onClick={() => setShowCart(false)}
+            style={{
+              color: "white",
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              fontSize: "16px"
+            }}
+          >
             Plants
-          </a>
-          <a href="#" style={{ color: "white", textDecoration: "none" }}>
-            Cart ({calculateTotalPlants()})
-          </a>
+          </button>
+          <span>Cart ({calculateTotalPlants()})</span>
         </div>
       </nav>
 
@@ -122,19 +129,22 @@ function CartItem() {
               backgroundColor: "green",
               color: "white",
               border: "none",
-              borderRadius: "5px"
+              borderRadius: "5px",
+              cursor: "pointer"
             }}
           >
             Checkout
           </button>
 
           <button
+            onClick={() => setShowCart(false)}
             style={{
               padding: "12px 20px",
               backgroundColor: "#555",
               color: "white",
               border: "none",
-              borderRadius: "5px"
+              borderRadius: "5px",
+              cursor: "pointer"
             }}
           >
             Continue Shopping
