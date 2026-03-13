@@ -1,8 +1,14 @@
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addItem } from "../redux/CartSlice";
 
 function ProductList() {
+  const dispatch = useDispatch();
+  const cartItems = useSelector((state) => state.cart.items);
+
+  const [addedItems, setAddedItems] = useState([]);
+
   const plants = [
-    // Category 1: Indoor Plants
     {
       id: 1,
       name: "Snake Plant",
@@ -45,8 +51,6 @@ function ProductList() {
       category: "Indoor Plants",
       image: "https://images.unsplash.com/photo-1485955900006-10f4d324d411"
     },
-
-    // Category 2: Succulents
     {
       id: 7,
       name: "Echeveria",
@@ -89,8 +93,6 @@ function ProductList() {
       category: "Succulents",
       image: "https://images.unsplash.com/photo-1470163395405-d2b80e7450ed"
     },
-
-    // Category 3: Air Purifying Plants
     {
       id: 13,
       name: "Boston Fern",
@@ -135,25 +137,20 @@ function ProductList() {
     }
   ];
 
-  const [cartItems, setCartItems] = useState([]);
-
-  const addToCart = (plant) => {
-    setCartItems([...cartItems, plant.id]);
-  };
-
-  const isAddedToCart = (id) => {
-    return cartItems.includes(id);
-  };
-
-  const getCartCount = () => {
-    return cartItems.length;
-  };
-
   const categories = [
     "Indoor Plants",
     "Succulents",
     "Air Purifying Plants"
   ];
+
+  const handleAddToCart = (plant) => {
+    dispatch(addItem(plant));
+    setAddedItems([...addedItems, plant.id]);
+  };
+
+  const getCartCount = () => {
+    return cartItems.reduce((total, item) => total + item.quantity, 0);
+  };
 
   return (
     <div>
@@ -220,27 +217,28 @@ function ProductList() {
                         borderRadius: "8px"
                       }}
                     />
-
                     <h3>{plant.name}</h3>
                     <p>${plant.price}</p>
 
                     <button
-                      onClick={() => addToCart(plant)}
-                      disabled={isAddedToCart(plant.id)}
+                      onClick={() => handleAddToCart(plant)}
+                      disabled={addedItems.includes(plant.id)}
                       style={{
                         padding: "10px 15px",
-                        backgroundColor: isAddedToCart(plant.id)
+                        backgroundColor: addedItems.includes(plant.id)
                           ? "gray"
                           : "green",
                         color: "white",
                         border: "none",
                         borderRadius: "5px",
-                        cursor: isAddedToCart(plant.id)
+                        cursor: addedItems.includes(plant.id)
                           ? "not-allowed"
                           : "pointer"
                       }}
                     >
-                      {isAddedToCart(plant.id) ? "Added to Cart" : "Add to Cart"}
+                      {addedItems.includes(plant.id)
+                        ? "Added to Cart"
+                        : "Add to Cart"}
                     </button>
                   </div>
                 ))}
